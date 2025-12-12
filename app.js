@@ -8,8 +8,20 @@ let state = {
   suffix: ''
 };
 
-// Extract URL from text
+const inputField = document.getElementById('input');
+const prefixInput = document.getElementById('prefix');
+const urlBaseInput = document.getElementById('urlBase');
+const suffixInput = document.getElementById('suffix');
+const paramsContainer = document.getElementById('params');
+const editor = document.getElementById('editor');
+const resultSection = document.getElementById('resultSection');
+const resultElement = document.getElementById('result');
+
+
 function extractURL(text) {
+  /* 
+    Extract URL from text 
+  */
   const urlRegex = /(https?:\/\/[^\s]+)/;
   const match = text.match(urlRegex);
 
@@ -26,8 +38,10 @@ function extractURL(text) {
   };
 }
 
-// Parse URL into components
 function parseURL(urlString) {
+  /* 
+    Parse URL into components 
+  */
   const url = new URL(urlString);
   const params = [];
 
@@ -42,8 +56,10 @@ function parseURL(urlString) {
   };
 }
 
-// Match domain rules
 function matchRule(urlBase) {
+  /* 
+    Match domain rules 
+  */
   for (const [domain, requiredParams] of Object.entries(URL_RULES)) {
     if (urlBase.includes(domain)) {
       return requiredParams;
@@ -52,26 +68,22 @@ function matchRule(urlBase) {
   return null;
 }
 
-// Apply rules to parameters
 function applyRules(params, urlBase) {
+  /* 
+    Apply rules to parameters 
+  */
   const rule = matchRule(urlBase);
+  const allowedSet = rule === null ? null : new Set(rule);
 
-  if (rule === null) {
-    // No rule: keep all parameters
-    params.forEach(p => p.enabled = true);
-  } else if (rule.length === 0) {
-    // Empty rule: remove all parameters
-    params.forEach(p => p.enabled = false);
-  } else {
-    // Apply specific rule
-    params.forEach(p => {
-      p.enabled = rule.includes(p.key);
-    });
-  }
+  params.forEach(param => {
+    param.enabled = allowedSet ? allowedSet.has(param.key) : true;
+  });
 }
 
-// Build clean URL
 function buildURL() {
+  /* 
+    Build clean URL 
+  */
   const enabledParams = state.url.params.filter(p => p.enabled);
   const queryString = enabledParams
     .map(p => `${p.key}=${p.value}`)
@@ -88,25 +100,21 @@ function buildURL() {
   // Ensure proper spacing
   let prefix = state.prefix;
   let suffix = state.suffix;
-
-  if (prefix && !prefix.endsWith(' ') && !prefix.endsWith('\n')) {
-    prefix += ' ';
-  }
-  if (suffix && !suffix.startsWith(' ') && !suffix.startsWith('\n')) {
-    suffix = ' ' + suffix;
-  }
+  if (prefix && !prefix.endsWith(' ') && !prefix.endsWith('\n')) { prefix += ' '; }
+  if (suffix && !suffix.startsWith(' ') && !suffix.startsWith('\n')) { suffix = ' ' + suffix; }
 
   return prefix + cleanURL + suffix;
 }
 
-// Render the editor
 function render() {
-  document.getElementById('prefix').value = state.prefix;
-  document.getElementById('urlBase').value = state.url.base + state.url.hash;
-  document.getElementById('suffix').value = state.suffix;
+  /* 
+    Render the editor 
+  */
+  prefixInput.value = state.prefix;
+  urlBaseInput.value = state.url.base + state.url.hash;
+  suffixInput.value = state.suffix;
 
   // Render parameters
-  const paramsContainer = document.getElementById('params');
   paramsContainer.innerHTML = '';
 
   if (state.url.params.length === 0) {
@@ -133,24 +141,26 @@ function render() {
 
   // Update result
   const resultText = buildURL();
-  document.getElementById('result').textContent = resultText;
+  resultElement.textContent = resultText;
 }
 
-// Toggle parameter
 function toggleParam(index) {
+  /* 
+    Toggle parameter 
+  */
   state.url.params[index].enabled = !state.url.params[index].enabled;
   render();
 }
 
-// Handle input
-document.getElementById('input').addEventListener('input', function(e) {
+/* Handle input */
+inputField.addEventListener('input', function(e) {
   const text = e.target.value.trim();
   if (!text) return;
 
   const extracted = extractURL(text);
   if (!extracted) {
-    alert('No URL found in the text');
-    this.value = '';
+    showToast('No URL found in the text');
+    inputField.value = '';
     return;
   }
 
@@ -160,20 +170,19 @@ document.getElementById('input').addEventListener('input', function(e) {
   state.url = parsed;
   state.suffix = extracted.suffix;
 
-  document.getElementById('editor').classList.remove('hidden');
-  document.getElementById('resultSection').classList.remove('hidden');
+  editor.classList.remove('hidden');
+  resultSection.classList.remove('hidden');
   e.target.value = '';
   render();
 });
 
-// Handle editor input changes
-document.getElementById('prefix').addEventListener('input', function(e) {
+/* Handle editor input changes */
+prefixInput.addEventListener('input', function(e) {
   state.prefix = e.target.value;
   render();
 });
 
-document.getElementById('urlBase').addEventListener('input', function(e) {
-  // Update URL base and hash
+urlBaseInput.addEventListener('input', function(e) {
   const value = e.target.value;
   const hashIndex = value.indexOf('#');
 
@@ -188,21 +197,25 @@ document.getElementById('urlBase').addEventListener('input', function(e) {
   render();
 });
 
-document.getElementById('suffix').addEventListener('input', function(e) {
+suffixInput.addEventListener('input', function(e) {
   state.suffix = e.target.value;
   render();
 });
 
-// Copy result to clipboard
 function copyResult() {
+  /* 
+    Copy result to clipboard 
+  */
   const result = buildURL();
   navigator.clipboard.writeText(result).then(() => {
     showToast('Copied to clipboard!');
   });
 }
 
-// Show toast notification
 function showToast(message) {
+  /* 
+    Show toast notification 
+  */
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = message;
