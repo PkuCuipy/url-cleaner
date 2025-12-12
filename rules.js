@@ -4,5 +4,5 @@
 const URL_RULES = {
   "xiaohongshu.com": ["xsec_token"],
   "zhihu.com": [],
-  "bilibili.com": ["p", "t"]
+  "bilibili.com": ["p", "t"],
 };

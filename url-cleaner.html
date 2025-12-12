@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧹 URL Cleaner</h1>
+    <h1>URL Cleaner</h1>
 
     <!-- Input -->
     <div class="card">
@@ -112,7 +112,7 @@
           return requiredParams;
         }
       }
-      return null; // No rule found
+      return null;
     }
 
     // Apply rules to parameters
@@ -194,10 +194,9 @@
         });
       }
 
-      // Update both result sections
+      // Update result
       const resultText = buildURL();
       document.getElementById('result').textContent = resultText;
-      document.getElementById('result2').textContent = resultText;
     }
 
     // Toggle parameter
@@ -206,7 +205,7 @@
       render();
     }
 
-    // Handle input paste
+    // Handle input
     document.getElementById('input').addEventListener('input', function(e) {
       const text = e.target.value.trim();
       if (!text) return;
@@ -218,36 +217,26 @@
         return;
       }
 
-      // Parse URL
       const parsed = parseURL(extracted.url);
-
-      // Apply rules
       applyRules(parsed.params, parsed.base);
-
-      // Update state
       state.prefix = extracted.prefix;
       state.url = parsed;
       state.suffix = extracted.suffix;
 
-      // Show editor and result sections
       document.getElementById('editor').classList.remove('hidden');
       document.getElementById('resultSection').classList.remove('hidden');
-
-      // Clear input
       e.target.value = '';
-
-      // Render
       render();
     });
 
-    // Handle manual edits
+    // Handle editor input changes
     document.getElementById('prefix').addEventListener('input', function(e) {
       state.prefix = e.target.value;
       render();
     });
 
     document.getElementById('urlBase').addEventListener('input', function(e) {
-      // Parse the edited URL base (might include hash)
+      // Update URL base and hash
       const value = e.target.value;
       const hashIndex = value.indexOf('#');
 
@@ -267,7 +256,7 @@
       render();
     });
 
-    // Copy result
+    // Copy result to clipboard
     function copyResult() {
       const result = buildURL();
       navigator.clipboard.writeText(result).then(() => {

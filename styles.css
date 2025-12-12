@@ -94,8 +94,7 @@ h1 {
   margin-bottom: 6px;
 }
 
-.editor-input,
-.editor-textarea {
+.editor-input {
   width: 100%;
   padding: 10px;
   border: 1px solid #d0d0d0;
@@ -106,13 +105,7 @@ h1 {
   transition: border-color 0.2s;
 }
 
-.editor-textarea {
-  resize: vertical;
-  min-height: 50px;
-}
-
-.editor-input:focus,
-.editor-textarea:focus {
+.editor-input:focus {
   outline: none;
   border-color: #888;
   background: white;
