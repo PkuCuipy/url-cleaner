@@ -12,12 +12,16 @@
 
     <!-- Input -->
     <div class="card">
-      <div class="card-header">Input</div>
-      <textarea
+      <input
         id="input"
+        type="text"
         placeholder="Paste your text with URL here..."
-        rows="3"
-      ></textarea>
+        autocomplete="off"
+      />
+      <div id="rawInputContainer" class="raw-input hidden">
+        <div class="raw-input-label">Original Pasted Text</div>
+        <pre id="rawInput" class="raw-input-content"></pre>
+      </div>
     </div>
 
     <!-- Editor -->
@@ -26,7 +30,7 @@
       <div class="card">
       <!-- Prefix -->
       <div class="editor-section">
-        <label class="editor-label">Prefix</label>
+        <label class="editor-label">Text Before URL</label>
         <input type="text" id="prefix" class="editor-input">
       </div>
 
@@ -38,13 +42,13 @@
 
       <!-- Parameters -->
       <div class="params-section">
-        <label class="params-label">Parameters</label>
+        <label class="params-label">URL Parameters</label>
         <div id="params"></div>
       </div>
 
       <!-- Suffix -->
       <div class="editor-section">
-        <label class="editor-label">Suffix</label>
+        <label class="editor-label">Text After URL</label>
         <input type="text" id="suffix" class="editor-input">
       </div>
       </div>

@@ -16,6 +16,8 @@ const paramsContainer = document.getElementById('params');
 const editor = document.getElementById('editor');
 const resultSection = document.getElementById('resultSection');
 const resultElement = document.getElementById('result');
+const rawInputContainer = document.getElementById('rawInputContainer');
+const rawInputElement = document.getElementById('rawInput');
 
 
 function extractURL(text) {
@@ -151,6 +153,16 @@ function toggleParam(index) {
   state.url.params[index].enabled = !state.url.params[index].enabled;
   render();
 }
+
+inputField.addEventListener('paste', function(e) {
+  const clipboardData = e.clipboardData || window.clipboardData;
+  if (!clipboardData) return;
+  const pastedText = clipboardData.getData('text') || clipboardData.getData('Text');
+  if (!pastedText) return;
+
+  rawInputElement.textContent = pastedText;
+  rawInputContainer.classList.remove('hidden');
+});
 
 /* Handle input */
 inputField.addEventListener('input', function(e) {
