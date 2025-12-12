@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 清理工具</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .input-section {
+        margin-bottom: 30px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        resize: vertical;
+        font-family: inherit;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #4CAF50;
+      }
+
+      .parse-section {
+        margin-bottom: 30px;
+      }
+
+      .prefix-suffix {
+        margin-bottom: 15px;
+      }
+
+      .prefix-suffix label {
+        display: block;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .prefix-suffix input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .params-list {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .param-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        user-select: none;
+      }
+
+      .param-item:last-child {
+        border-bottom: none;
+      }
+
+      .param-item:hover {
+        background-color: #f9f9f9;
+      }
+
+      .param-item.base-url {
+        background-color: #f0f0f0;
+        cursor: default;
+      }
+
+      .param-item.base-url:hover {
+        background-color: #f0f0f0;
+      }
+
+      .checkbox {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ddd;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: white;
+      }
+
+      .param-item.enabled .checkbox {
+        background: #4CAF50;
+        border-color: #4CAF50;
+      }
+
+      .param-item.enabled .checkbox::after {
+        content: '✓';
+        color: white;
+        font-size: 12px;
+      }
+
+      .param-item.disabled .checkbox {
+        border-color: #ccc;
+      }
+
+      .param-content {
+        flex: 1;
+        font-size: 14px;
+        word-break: break-all;
+      }
+
+      .param-item.disabled .param-content {
+        color: #999;
+        text-decoration: line-through;
+      }
+
+      .param-key {
+        font-weight: 600;
+        color: #2196F3;
+      }
+
+      .param-item.disabled .param-key {
+        color: #999;
+      }
+
+      .output-section {
+        background: #f9f9f9;
+        border: 2px solid #4CAF50;
+        border-radius: 4px;
+        padding: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .output-section:hover {
+        background-color: #f0f0f0;
+      }
+
+      .output-section:active {
+        background-color: #e8e8e8;
+      }
+
+      .output-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .output-url {
+        font-size: 14px;
+        word-break: break-all;
+        color: #333;
+      }
+
+      .copy-hint {
+        font-size: 11px;
+        color: #999;
+        margin-top: 8px;
+        text-align: right;
+      }
+
+      .copied-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+
+      .copied-notification.show {
+        opacity: 1;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>URL 清理工具</h1>
+
+      <div class="input-section">
+        <textarea id="urlInput" placeholder="粘贴包含 URL 的文本..."></textarea>
+      </div>
+
+      <div class="parse-section" id="parseSection" style="display: none;">
+        <div class="prefix-suffix">
+          <label>前缀文字</label>
+          <input type="text" id="prefixInput" placeholder="URL 前的文字（可编辑）">
+        </div>
+
+        <div class="params-list" id="paramsList"></div>
+
+        <div class="prefix-suffix" style="margin-top: 15px;">
+          <label>后缀文字</label>
+          <input type="text" id="suffixInput" placeholder="URL 后的文字（可编辑）">
+        </div>
+      </div>
+
+      <div class="output-section" id="outputSection" style="display: none;" title="点击复制">
+        <div class="output-label">清理后的结果（点击复制）</div>
+        <div class="output-url" id="outputUrl"></div>
+        <div class="copy-hint">💡 点击此区域复制到剪贴板</div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        粘贴包含小红书、知乎或哔哩哔哩链接的文本
+      </div>
+    </div>
+
+    <div class="copied-notification" id="copiedNotification">已复制到剪贴板！</div>
+
+    <script>
+      // 规则定义
+      const RULES = {
+        'xiaohongshu.com': ['xsec_token'],
+        'zhihu.com': [],
+        'bilibili.com': ['p', 't']  // 分P和时间戳
+      };
+
+      // 全局状态
+      let state = {
+        prefix: '',
+        suffix: '',
+        url: {
+          base: '',
+          hash: '',
+          params: []
+        }
+      };
+
+      // 提取 URL
+      function extractURL(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/;
+        const match = text.match(urlRegex);
+
+        if (!match) {
+          return null;
+        }
+
+        const urlString = match[0];
+        const urlStart = match.index;
+        const urlEnd = urlStart + urlString.length;
+
+        return {
+          prefix: text.substring(0, urlStart),
+          urlString: urlString,
+          suffix: text.substring(urlEnd)
+        };
+      }
+
+      // 解析 URL
+      function parseURL(urlString) {
+        try {
+          const url = new URL(urlString);
+          const params = [];
+
+          url.searchParams.forEach((value, key) => {
+            params.push({ key, value, enabled: true });
+          });
+
+          return {
+            base: url.origin + url.pathname,
+            hash: url.hash,
+            params: params
+          };
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // 匹配规则
+      function matchRule(base) {
+        for (const domain in RULES) {
+          if (base.includes(domain)) {
+            return RULES[domain];
+          }
+        }
+        return null;
+      }
+
+      // 应用规则
+      function applyRule(params, rule) {
+        if (rule === null) {
+          // 未知网站，全部启用
+          params.forEach(p => p.enabled = true);
+        } else {
+          // 有规则，只保留必须的
+          params.forEach(p => {
+            p.enabled = rule.includes(p.key);
+          });
+        }
+      }
+
+      // 构建 URL
+      function buildURL() {
+        const enabledParams = state.url.params.filter(p => p.enabled);
+        let url = state.url.base;
+
+        if (enabledParams.length > 0) {
+          const queryString = enabledParams
+            .map(p => `${p.key}=${p.value}`)
+            .join('&');
+          url += '?' + queryString;
+        }
+
+        if (state.url.hash) {
+          url += state.url.hash;
+        }
+
+        const prefix = document.getElementById('prefixInput').value;
+        const suffix = document.getElementById('suffixInput').value;
+
+        return prefix + url + suffix;
+      }
+
+      // 渲染参数列表
+      function render() {
+        const paramsList = document.getElementById('paramsList');
+        paramsList.innerHTML = '';
+
+        // Base URL（不可toggle）
+        const baseItem = document.createElement('div');
+        baseItem.className = 'param-item base-url';
+        baseItem.innerHTML = `
+                <div class="checkbox">✓</div>
+                <div class="param-content">${state.url.base}${state.url.hash}</div>
+            `;
+        paramsList.appendChild(baseItem);
+
+        // 参数列表
+        state.url.params.forEach((param, index) => {
+          const item = document.createElement('div');
+          item.className = `param-item ${param.enabled ? 'enabled' : 'disabled'}`;
+          item.innerHTML = `
+                    <div class="checkbox"></div>
+                    <div class="param-content">
+                        <span class="param-key">${param.key}</span> = ${param.value}
+                    </div>
+                `;
+          item.addEventListener('click', () => toggleParam(index));
+          paramsList.appendChild(item);
+        });
+
+        // 更新输出
+        updateOutput();
+      }
+
+      // Toggle 参数
+      function toggleParam(index) {
+        state.url.params[index].enabled = !state.url.params[index].enabled;
+        render();
+      }
+
+      // 更新输出
+      function updateOutput() {
+        const outputUrl = document.getElementById('outputUrl');
+        outputUrl.textContent = buildURL();
+      }
+
+      // 处理输入
+      function processInput() {
+        const input = document.getElementById('urlInput').value.trim();
+
+        if (!input) {
+          document.getElementById('parseSection').style.display = 'none';
+          document.getElementById('outputSection').style.display = 'none';
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        const extracted = extractURL(input);
+        if (!extracted) {
+          document.getElementById('parseSection').style.display = 'none';
+          document.getElementById('outputSection').style.display = 'none';
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        const parsed = parseURL(extracted.urlString);
+        if (!parsed) {
+          document.getElementById('parseSection').style.display = 'none';
+          document.getElementById('outputSection').style.display = 'none';
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        // 匹配并应用规则
+        const rule = matchRule(parsed.base);
+        applyRule(parsed.params, rule);
+
+        // 更新状态
+        state.prefix = extracted.prefix;
+        state.suffix = extracted.suffix;
+        state.url = parsed;
+
+        // 更新UI
+        document.getElementById('prefixInput').value = state.prefix;
+        document.getElementById('suffixInput').value = state.suffix;
+        document.getElementById('parseSection').style.display = 'block';
+        document.getElementById('outputSection').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'none';
+
+        render();
+      }
+
+      // 复制到剪贴板
+      function copyToClipboard() {
+        const text = buildURL();
+        navigator.clipboard.writeText(text).then(() => {
+          const notification = document.getElementById('copiedNotification');
+          notification.classList.add('show');
+          setTimeout(() => {
+            notification.classList.remove('show');
+          }, 2000);
+        });
+      }
+
+      // 事件监听
+      document.getElementById('urlInput').addEventListener('input', processInput);
+      document.getElementById('prefixInput').addEventListener('input', updateOutput);
+      document.getElementById('suffixInput').addEventListener('input', updateOutput);
+      document.getElementById('outputSection').addEventListener('click', copyToClipboard);
+
+      // 初始化
+      processInput();
+    </script>
+  </body>
+
+</html>
