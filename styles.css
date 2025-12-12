@@ -20,18 +20,41 @@ body {
 h1 {
   text-align: center;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   font-size: 1.8em;
   font-weight: 600;
+}
+
+.section-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  margin-top: 24px;
+}
+
+.section-header:first-of-type {
+  margin-top: 0;
 }
 
 .card {
   background: white;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   border: 1px solid #e8e8e8;
+}
+
+.card-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
 /* Input Section */
@@ -141,8 +164,9 @@ h1 {
   text-decoration: line-through;
 }
 
-.param-item.disabled .param-key {
-  color: #bbb;
+.param-item.disabled .param-key,
+.param-item.disabled .param-value {
+  color: #aaa;
 }
 
 .param-checkbox {
@@ -178,6 +202,16 @@ h1 {
   padding: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
+}
+
+.result-container::after {
+  content: "Click to copy";
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 10px;
+  color: #aaa;
 }
 
 .result-container:hover {
@@ -188,33 +222,13 @@ h1 {
   background: #e8e8e8;
 }
 
-.result-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.result-label::after {
-  content: "Click to copy";
-  font-size: 10px;
-  font-weight: normal;
-  color: #aaa;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
 #result {
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 13px;
   color: #333;
   word-break: break-all;
   line-height: 1.5;
+  padding-right: 80px;
 }
 
 /* Toast notification */

@@ -10,8 +10,9 @@
   <div class="container">
     <h1>🧹 URL Cleaner</h1>
 
-    <!-- Input Section -->
+    <!-- Input -->
     <div class="card">
+      <div class="card-header">Input</div>
       <textarea
         id="input"
         placeholder="Paste your text with URL here..."
@@ -19,12 +20,14 @@
       ></textarea>
     </div>
 
-    <!-- Editor Section -->
-    <div id="editor" class="card hidden">
+    <!-- Editor -->
+    <div id="editor" class="hidden">
+      <div class="section-header">Editor</div>
+      <div class="card">
       <!-- Prefix -->
       <div class="editor-section">
         <label class="editor-label">Prefix</label>
-        <textarea id="prefix" class="editor-textarea" rows="2"></textarea>
+        <input type="text" id="prefix" class="editor-input">
       </div>
 
       <!-- URL Base -->
@@ -42,14 +45,15 @@
       <!-- Suffix -->
       <div class="editor-section">
         <label class="editor-label">Suffix</label>
-        <textarea id="suffix" class="editor-textarea" rows="2"></textarea>
+        <input type="text" id="suffix" class="editor-input">
+      </div>
       </div>
     </div>
 
-    <!-- Result Section -->
+    <!-- Cleaned Result -->
     <div id="resultSection" class="card hidden">
+      <div class="card-header">Cleaned Result</div>
       <div class="result-container" onclick="copyResult()">
-        <div class="result-label">Cleaned Result</div>
         <div id="result"></div>
       </div>
     </div>
@@ -190,8 +194,10 @@
         });
       }
 
-      // Update result
-      document.getElementById('result').textContent = buildURL();
+      // Update both result sections
+      const resultText = buildURL();
+      document.getElementById('result').textContent = resultText;
+      document.getElementById('result2').textContent = resultText;
     }
 
     // Toggle parameter
@@ -208,6 +214,7 @@
       const extracted = extractURL(text);
       if (!extracted) {
         alert('No URL found in the text');
+        this.value = '';
         return;
       }
 
@@ -222,7 +229,7 @@
       state.url = parsed;
       state.suffix = extracted.suffix;
 
-      // Show editor and result
+      // Show editor and result sections
       document.getElementById('editor').classList.remove('hidden');
       document.getElementById('resultSection').classList.remove('hidden');
 
