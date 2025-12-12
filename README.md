@@ -2,6 +2,10 @@
 
 URL Cleaner helps minimize shareable links by identifying and removing tracking parameters while preserving essential ones, resulting in shorter, cleaner URLs without sacrificing functionality.
 
+### App Link
+
+https://pkucuipy.github.io/url-cleaner/
+
 ### Features
 
 - **Parameters Extraction**: Extracts and displays all URL parameters
